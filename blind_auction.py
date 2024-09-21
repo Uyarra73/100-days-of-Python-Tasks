@@ -19,7 +19,7 @@ while bidder_exists:
     else:
         bidder_exists = False
         for key, value in bidders.items():
-            while value > best_bid:
+            if value > best_bid:
                 best_bid = value
                 winner = key
         print(f"The winner is {winner} with a bid of ${best_bid}")
