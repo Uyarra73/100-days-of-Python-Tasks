@@ -31,7 +31,6 @@ resources = {
     "coffee": 100,
 }
 
-# Función para actualizar los recursos después de servir un café
 def update_resources(selection):
     """ Updates resources after executing the payment function and prints a report of them """
     for n in resources:
