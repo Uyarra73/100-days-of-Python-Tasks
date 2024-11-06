@@ -1,15 +1,16 @@
 import turtle
-import pandas as pd
+import pandas
+
 
 FONT = ("Courier", 10, "bold")
 
 screen = turtle.Screen()
-screen.title("U.S. STATES GAME")
-image = "blank_states_img.gif"
+screen.title("SPAIN PROVINCES")
+image = "blank_spain_provinces.gif"
 screen.addshape(image)
 turtle.shape(image)
 
-states_list = pd.read_csv("50_states.csv")
+states_list = pandas.read_csv("50_states.csv")
 
 state_name = turtle.Turtle()
 state_name.hideturtle()
@@ -18,15 +19,17 @@ state_name.color("black")
 game_is_on = True
 score = 0
 guessed_states = []
-
+states_to_learn = []
 
 while len(guessed_states) < 50:
     answer_state = screen.textinput(title=f"Guess the State!  {score}/50", prompt="Write the name of a state").title()
     matching_state = states_list[states_list["state"] == answer_state]
 
     if answer_state == "Exit":
-        states_to_learn = [state for state in states_list.state if state not in guessed_states]
-        study_list = pd.DataFrame(states_to_learn)
+        for state in states_list.state:
+            if state not in guessed_states:
+                states_to_learn.append(state)
+        study_list = pandas.DataFrame(states_to_learn)
         study_list.to_csv("states_to_learn.csv")
         break
 
