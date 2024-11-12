@@ -1,58 +1,78 @@
+import json
 from tkinter import *
 from tkinter import messagebox
 import random
 import pyperclip
 
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
-#Password Generator Project
 def generate_password():
-    letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-    numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-    symbols = ['!', '#', '$', '%', '&', '(', ')', '*', '+']
+    letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    numbers = '0123456789'
+    symbols = '!#$%&()*+'
 
     nr_letters = random.randint(8, 10)
     nr_symbols = random.randint(2, 4)
     nr_numbers = random.randint(2, 4)
 
-    password_list = []
-
-    # new_list = [expression for item in iterable if condition]
-    password_list += [random.choice(letters) for letter in range(nr_letters)]
-    password_list += [random.choice(symbols) for symbol in range(nr_symbols)]
-    password_list += [random.choice(numbers) for number in range(nr_numbers)]
+    password_list = [random.choice(letters) for _ in range(nr_letters)]
+    password_list += [random.choice(symbols) for _ in range(nr_symbols)]
+    password_list += [random.choice(numbers) for _ in range(nr_numbers)]
 
     random.shuffle(password_list)
-
     generated_password = "".join(password_list)
 
     pass_entry.delete(0, END)
     pass_entry.insert(0, generated_password)
     pyperclip.copy(generated_password)
 
-    #print(f"Your password is: {generated_password}")
-
 # ---------------------------- SAVE PASSWORD ------------------------------- #
 def save_data():
     website = web_input.get()
     username = user_input.get()
     password_entry = pass_entry.get()
+    new_data = {
+        website: {
+            "email": username,
+            "password": password_entry,
+        }
+    }
 
     if website and username and password_entry:
-        is_ok = messagebox.askokcancel(title=website, message=f"Do you really want to save these data? \nUsername: {username}\nPassword: {password_entry}\n")
-        if is_ok:
-            with open("data.txt", "a") as file:
-                file.write(f"Website: {website} | Username: {username} | Password: {password_entry} \n")
+        try:
+            with open("data.json", "r") as data_file:
+                data = json.load(data_file)  # Cargar datos existentes
+        except FileNotFoundError:
+            data = {}  # Crear un diccionario vacío si el archivo no existe
 
-            web_input.delete(0, END)
-            user_input.delete(0, END)
-            pass_entry.delete(0, END)
+        data.update(new_data)  # Actualizar datos con los nuevos
 
-            messagebox.showinfo("Success! Your data have been saved!")
+        with open("data.json", "w") as data_file:
+            json.dump(data, data_file, indent=4)  # Guardar los datos actualizados
+
+        web_input.delete(0, END)
+        pass_entry.delete(0, END)
+
+        messagebox.showinfo("Success!", "Your data has been saved!")
     else:
-        messagebox.showwarning("You must fill all the fields")
+        messagebox.showwarning("Warning", "You must fill all the fields")
+
+# ------------ FIND PASSWORD ---------- #
+def find_password():
+    website_name = web_input.get()
+    try:
+        with open("data.json", "r") as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        messagebox.showwarning("Warning", "This file doesn't exist")
+    else:
+        if website_name in data:
+            web_user = data[website_name]["email"]
+            web_password = data[website_name]["password"]
+            messagebox.showinfo(website_name, f"Email: {web_user} \nPassword: {web_password}")
+        else:
+            messagebox.showwarning("Warning",f"The website {website_name} doesn't exist in this file")
 
 # ---------------------------- UI SETUP ------------------------------- #
-
 window = Tk()
 window.title("Password Manager")
 window.config(padx=20, pady=50)
@@ -66,10 +86,14 @@ canvas.grid(column=1, row=0)
 web_label = Label(text="Website:")
 web_label.grid(column=0, row=1)
 
-#Website input
-web_input = Entry(width=35)
-web_input.grid(column=1, row=1, columnspan=2)
+# Website input
+web_input = Entry(width=21)
+web_input.grid(column=1, row=1)
 web_input.focus()
+
+# Search button
+search = Button(text="Search", width=15, command=find_password)
+search.grid(column=2, row=1)
 
 # User label
 user = Label(text="Email/Username:")
@@ -93,7 +117,8 @@ generate = Button(text="Generate Password", command=generate_password)
 generate.grid(column=2, row=3)
 
 # Add button
-add = Button(text="Add", width=36,  command=save_data)
+add = Button(text="Add", width=36, command=save_data)
 add.grid(column=1, row=4, columnspan=2)
 
 window.mainloop()
+
