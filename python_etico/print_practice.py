@@ -1,0 +1,7 @@
+day1_date = input("Add day1 date (yyy-mm-dd): ")
+day1_log = input("Add day1 log: ")
+day1_note = input("Add a personal message: ")
+day2_date = input("Add day2 date (yyy-mm-dd): ")
+day2_log = input("Add day2 log: ")
+day2_note = input("Add a personal message: ")
+print(f"Diario de un astronauta\n\nFecha:{day1_date}\n{day1_log}\nMensaje personal: {day1_note}\n\nFecha: {day2_date}\n{day2_log}\nMensaje personal: {day2_note}\n")
